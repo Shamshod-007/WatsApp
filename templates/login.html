@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="{{ url_for('manifest') }}">
+<link rel="icon" href="{{ url_for('static', filename='icons/icon.svg') }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<title>{{ 'Регистрация' if registration_mode else 'Вход' }} · Messenger</title>
+<script>
+  (function () {
+    var t = localStorage.getItem("theme");
+    if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #e9f1ef; --panel: #ffffff; --text: #0f1f1d; --muted: #66787a; --line: #dfe8e6;
+    --accent: #0d9488; --accent2: #22c5aa; --danger: #e5484d; --field: #f3f7f6;
+    --shadow: 0 20px 50px -20px rgba(13, 80, 72, .35);
+  }
+  [data-theme="dark"] {
+    --bg: #0a1211; --panel: #111c1b; --text: #e7f1ef; --muted: #8aa09d; --line: #1f2f2d;
+    --field: #162423; --shadow: 0 20px 50px -20px rgba(0, 0, 0, .7);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text); background: var(--bg);
+    display: grid; place-items: center;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    background-image:
+      radial-gradient(900px 500px at 15% -10%, rgba(34, 197, 170, .28), transparent 60%),
+      radial-gradient(800px 500px at 100% 110%, rgba(13, 148, 136, .25), transparent 60%);
+  }
+  .shell { display: flex; width: 100%; max-width: 420px; }
+  .art { display: none; }
+  @media (min-width: 900px) {
+    .shell { max-width: 960px; background: var(--panel); border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; min-height: 600px; }
+    .art { display: flex; flex: 1; flex-direction: column; justify-content: flex-end; padding: 48px; color: #fff;
+           background: radial-gradient(500px 360px at 20% 10%, rgba(255,255,255,.22), transparent 60%), linear-gradient(145deg, #0b7a70, #19b9a2); }
+    .art h2 { font-size: 34px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.02em; }
+    .art p { margin: 0 0 22px; opacity: .9; font-size: 16px; max-width: 360px; }
+    .art ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .art li { background: rgba(255,255,255,.18); padding: 7px 13px; border-radius: 20px; font-size: 14px; font-weight: 600; backdrop-filter: blur(6px); }
+    .shell .card { box-shadow: none; border: 0; border-radius: 0; width: 460px; flex: none; align-self: center; background: transparent; }
+  }
+  .card {
+    width: 100%; max-width: 400px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 24px; box-shadow: var(--shadow); padding: 28px 24px 22px;
+  }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .brand img { width: 64px; height: 64px; border-radius: 18px; box-shadow: 0 10px 24px -8px rgba(13, 148, 136, .6); }
+  .brand h1 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
+  .brand p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--field); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
+  .tabs a {
+    text-align: center; padding: 9px 0; border-radius: 9px; text-decoration: none; color: var(--muted);
+    font-weight: 600; font-size: 14px; transition: .15s;
+  }
+  .tabs a.on { background: var(--panel); color: var(--text); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin: 0 0 5px 2px; }
+  .field { margin-bottom: 13px; position: relative; }
+  input {
+    width: 100%; height: 46px; border: 1.5px solid transparent; background: var(--field); color: var(--text);
+    border-radius: 12px; padding: 0 14px; font: inherit; font-size: 16px; outline: none; transition: .15s;
+  }
+  input:focus { border-color: var(--accent); background: var(--panel); box-shadow: 0 0 0 4px rgba(13, 148, 136, .14); }
+  .eye {
+    position: absolute; right: 6px; bottom: 6px; width: 34px; height: 34px; border: 0; background: none;
+    color: var(--muted); border-radius: 8px; cursor: pointer; display: grid; place-items: center;
+  }
+  .eye:hover { color: var(--text); }
+  .btn {
+    width: 100%; height: 48px; border: 0; border-radius: 13px; color: #fff; font: inherit; font-weight: 700; font-size: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); cursor: pointer; margin-top: 4px;
+    box-shadow: 0 10px 22px -10px rgba(13, 148, 136, .8); transition: transform .1s, filter .15s;
+  }
+  .btn:hover { filter: brightness(1.05); }
+  .btn:active { transform: scale(.985); }
+  .btn:disabled { opacity: .6; }
+  .error {
+    background: rgba(229, 72, 77, .1); color: var(--danger); border: 1px solid rgba(229, 72, 77, .3);
+    padding: 10px 12px; border-radius: 12px; font-size: 13.5px; margin-bottom: 14px;
+  }
+  .hint { text-align: center; color: var(--muted); font-size: 12.5px; margin: 16px 0 0; }
+  .theme {
+    position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; width: 40px; height: 40px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text); cursor: pointer; display: grid; place-items: center;
+  }
+  svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+{% set f = form if form else {} %}
+<button class="theme" id="theme" type="button" aria-label="Тема">
+  <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+
+<div class="shell">
+<section class="art">
+  <h2>Переписка и звонки в одном месте</h2>
+  <p>Текст, файлы, аудио и видео. Работает на компьютере и на телефоне.</p>
+  <ul><li>💬 Чаты и группы</li><li>📎 Файлы и фото</li><li>📞 Аудио и видео</li></ul>
+</section>
+<main class="card">
+  <div class="brand">
+    <img src="{{ url_for('static', filename='icons/icon-192.png') }}" alt="">
+    <h1>Messenger</h1>
+    <p>{{ 'Создайте аккаунт за минуту' if registration_mode else 'С возвращением! Войдите в аккаунт' }}</p>
+  </div>
+
+  <nav class="tabs">
+    <a href="{{ url_for('login') }}" class="{{ '' if registration_mode else 'on' }}">Вход</a>
+    <a href="{{ url_for('register') }}" class="{{ 'on' if registration_mode else '' }}">Регистрация</a>
+  </nav>
+
+  {% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+
+  {% if registration_mode %}
+  <form method="post" action="{{ url_for('register') }}" autocomplete="on">
+    <div class="field"><label for="display_name">Имя</label>
+      <input id="display_name" name="display_name" value="{{ f.get('display_name', '') }}" autocomplete="name" placeholder="Как вас зовут"></div>
+    <div class="field"><label for="username">Логин</label>
+      <input id="username" name="username" value="{{ f.get('username', '') }}" autocomplete="username" autocapitalize="none" required minlength="3" placeholder="Минимум 3 символа"></div>
+    <div class="field"><label for="phone_number">Телефон</label>
+      <input id="phone_number" name="phone_number" value="{{ f.get('phone_number', '') }}" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+992 …"></div>
+    <div class="field"><label for="password">Пароль</label>
+      <input id="password" name="password" type="password" autocomplete="new-password" required minlength="6" placeholder="Минимум 6 символов">
+      <button class="eye" type="button" data-eye aria-label="Показать пароль"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+    {% if invite_required %}
+    <div class="field"><label for="invite">Код приглашения</label>
+      <input id="invite" name="invite" value="{{ f.get('invite', '') }}" autocomplete="off" required placeholder="Спросите у владельца сервера"></div>
+    {% endif %}
+    <button class="btn" type="submit">Создать аккаунт</button>
+  </form>
+  <p class="hint">Уже есть аккаунт? <a href="{{ url_for('login') }}" style="color:var(--accent);font-weight:600;text-decoration:none">Войти</a></p>
+  {% else %}
+  <form method="post" action="{{ url_for('login') }}" autocomplete="on">
+    <div class="field"><label for="username">Логин или телефон</label>
+      <input id="username" name="username" value="{{ f.get('username', '') }}" autocomplete="username" autocapitalize="none" required autofocus placeholder="Например, maria"></div>
+    <div class="field"><label for="password">Пароль</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Ваш пароль">
+      <button class="eye" type="button" data-eye aria-label="Показать пароль"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+    <button class="btn" type="submit">Войти</button>
+  </form>
+  <p class="hint">Нет аккаунта? <a href="{{ url_for('register') }}" style="color:var(--accent);font-weight:600;text-decoration:none">Зарегистрироваться</a></p>
+  {% endif %}
+</main>
+</div>
+
+<script>
+  document.querySelectorAll("[data-eye]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = b.parentElement.querySelector("input");
+      i.type = i.type === "password" ? "text" : "password";
+    });
+  });
+  document.getElementById("theme").addEventListener("click", function () {
+    var t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = t;
+    localStorage.setItem("theme", t);
+  });
+  document.querySelectorAll("form").forEach(function (f) {
+    f.addEventListener("submit", function () {
+      var b = f.querySelector(".btn"); b.disabled = true; b.textContent = "Подождите…";
+    });
+  });
+</script>
+</body>
+</html>
