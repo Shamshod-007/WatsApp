@@ -1,0 +1,9 @@
+{
+  "appId": "com.tvoyname.messenger",
+  "appName": "Messenger",
+  "webDir": "www",
+  "server": {
+    "url": "https://ТВОЙ-АДРЕС.ts.net",
+    "cleartext": false
+  }
+}
